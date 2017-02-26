@@ -1,13 +1,19 @@
-import sys, math, urllib
+import sys, math, urllib, io
 from tile_system import LatLongToPixelXY, PixelXYToTileXY, TileXYToQuadKey
+from PIL import Image
+
+def getURL(quadkey):
+	license_key = "41W7SFbE1T0EL5ZXwqs3~1Qz6gK41TViufkWWMdrxbg~Au2gvdXSyRpNSFsqjlnA5hVuP-2kaFHPdz3pUKMZasjOWt89LqbSAyUCSjx8qsJm"
+	return "http://h0.ortho.tiles.virtualearth.net/tiles/h%s.jpeg?g=131&key=%s" % (quadkey, license_key)
+
 def main():
 	# This function runs the code for HW3
-	lat1 = int(sys.argv[1])
-	lon1 = int(sys.argv[2])
-	lat2 = int(sys.argv[3])
-	lon2 = int(sys.argv[4])
+	lat1 = float(sys.argv[1])
+	lon1 = float(sys.argv[2])
+	lat2 = float(sys.argv[3])
+	lon2 = float(sys.argv[4])
 	
-	q = 12 #quality of image
+	q = 7 #quality of image
 	
 	# First convert the four corners to pixels
 	x11, y11 = LatLongToPixelXY(lat1, lon1, q)
@@ -36,8 +42,12 @@ def main():
 	frontURL = "http://h0.ortho.tiles.virtualearth.net/tiles/h"
 	backURL = ".jpeg?g=131"
 	fullURL = frontURL + quadkey + backURL
-	urllib.urlretrieve(fullURL, "aerial_image.jpg")
-
+	#urllib.urlretrieve(fullURL, "aerial_image.jpg")
+	socket = urllib.urlopen(getURL(quadkey))
+	tinker = socket.read()
+	img = Image.open(io.BytesIO(tinker))
+	# img.save('test.jpg')
+	img.show()
 
 if __name__ == '__main__':
     main()
