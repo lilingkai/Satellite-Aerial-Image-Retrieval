@@ -84,11 +84,11 @@ def LatLongToPixelXY(latitude, longitude, levelOfDetail):
 
 	x = (longitude + 180) / 360
 	sinLatitude = math.sin(latitude * math.pi / 180)
-	y = 0.5 - math.log((1 + sinLatitude) / (1-sinLatitude)) / (4*math.pi)
+	y = 0.5 - math.log((1 + sinLatitude) / (1 - sinLatitude)) / (4 * math.pi)
 
 	mapSize = MapSize(levelOfDetail)
-	pixelX = Clip(x * mapSize + 0.5, 0, mapSize - 1)
-	pixelY = Clip(y * mapSize + 0.5, 0, mapSize - 1)
+	pixelX = int(Clip(x * mapSize + 0.5, 0, mapSize - 1))
+	pixelY = int(Clip(y * mapSize + 0.5, 0, mapSize - 1))
 
 	return pixelX, pixelY
 
@@ -127,8 +127,8 @@ def PixelXYToTileXY(pixelX, pixelY):
 	Returns: 
 		tileX, tileY
 	"""
-	tileX = pixelX / 256
-	tileY = pixelY / 256
+	tileX = int(pixelX / 256)
+	tileY = int(pixelY / 256)
 	return tileX, tileY
 
 def TileXYToPixelXY(tileX, tileY):
@@ -164,43 +164,62 @@ def TileXYToQuadKey(tileX, tileY, levelOfDetail):
 	for i in range(levelOfDetail, 0, -1):
 		digit = '0'
 		mask = 1 << (i-1)
-		if ((tileX and mask) != 0):
+		if ((tileX & mask) != 0):
 			digit = chr(ord(digit) + 1)
-		if ((tileY and mask) != 0):
+		if ((tileY & mask) != 0):           # "and" is for booleans, "&" is for bits
 			digit = chr(ord(digit) + 1)
 			digit = chr(ord(digit) + 1)
 		quadKey += digit
 	return quadKey
 
+def LatLongToQuadKey(latitude, longitude, levelOfDetail):
+	pixelX, pixelY = LatLongToPixelXY(latitude, longitude, levelOfDetail)
+	print "pixelX, pixelY are ",
+	print pixelX,
+	print pixelY
+	tileX, tileY = PixelXYToTileXY(pixelX, pixelY)
+	print "tileX, tileY are ",
+	print tileX,
+	print tileY
+	quadKey = TileXYToQuadKey(tileX, tileY, levelOfDetail)
+	print "quadKey is",
+	print quadKey
+	return quadKey
 
-"""
-def QuadKeyToTileXY(quadKey):
-	#
-	Summary: 
-		Converts a QuadKey into tile XY coordinates.
+def LatLongToTileXY(latitude, longitude, levelOfDetail):
+	pixelX, pixelY = LatLongToPixelXY(latitude, longitude, levelOfDetail)
+	tileX, tileY = PixelXYToTileXY(pixelX, pixelY)
+	return tileX, tileY
 
-	Input Params:
-		quadKey - QuadKey of the Tile
+# def QuadKeyToTileXY(quadKey):
+# 	#
+# 	Summary: 
+# 		Converts a QuadKey into tile XY coordinates.
 
-	Returns: 
-		tileX, tileY, levelOfDetail
-	#
-	tileX = tileY = 0;
-	levelOfDetail = len(quadKey)
-	for i in range (levelOfDetail, 0, -1):
-		mask = 1 << (i-1);
-		if quadKey[levelOfDetail - i] == '0':
-			break
-		elif quadKey[levelOfDetail - i] == '1':
-			tileX
-			break
-		elif quadKey[levelOfDetail -i] == '2':
-			tileY
-			break
-		elif qudKey[levelOfdetail - i] == '3':
-			tileX
-			tileY
-			break
-		else:
-			raise ValueError("Invalid QuadKey digit sequence.")
-"""
+# 	Input Params:
+# 		quadKey - QuadKey of the Tile
+
+# 	Returns: 
+# 		tileX, tileY, levelOfDetail
+# 	#
+# 	tileX = tileY = 0;
+# 	levelOfDetail = len(quadKey)
+# 	for i in range (levelOfDetail, 0, -1):
+# 		mask = 1 << (i-1);
+# 		if quadKey[levelOfDetail - i] == '0':
+# 			break
+# 		elif quadKey[levelOfDetail - i] == '1':
+# 			tileX
+# 			break
+# 		elif quadKey[levelOfDetail -i] == '2':
+# 			tileY
+# 			break
+# 		elif qudKey[levelOfdetail - i] == '3':
+# 			tileX
+# 			tileY
+# 			break
+# 		else:
+# 			raise ValueError("Invalid QuadKey digit sequence.")
+if __name__ == '__main__':
+    LatLongToQuadKey(42.052799, -87.673748, 1) # Northwestern QuadKey
+
