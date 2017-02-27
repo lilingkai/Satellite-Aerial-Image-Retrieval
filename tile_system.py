@@ -221,5 +221,5 @@ def LatLongToTileXY(latitude, longitude, levelOfDetail):
 # 		else:
 # 			raise ValueError("Invalid QuadKey digit sequence.")
 if __name__ == '__main__':
-    LatLongToQuadKey(42.052799, -87.673748, 1) # Northwestern QuadKey
+    LatLongToQuadKey(42.052799, -87.673748, 2) # Northwestern QuadKey
 
